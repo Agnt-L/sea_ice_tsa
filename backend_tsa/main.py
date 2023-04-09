@@ -22,7 +22,7 @@ for i, name in enumerate(sheet_names):
 choice = int(input("Enter the number of the sheet to read: "))
 
 # read in the chosen sheet as a pandas DataFrame
-df = pd.read_excel(filename, index_col=0, header=[0,1], sheet_name=choice-1)
+df = pd.read_excel(filename, index_col=0, header=[0, 1], sheet_name=choice-1)
 
 # print the DataFrame
 print(df)
@@ -32,7 +32,8 @@ data_initial = df.copy()
 data = data_initial.stack(level=0).drop(columns='rank')
 
 # Transform the MultiIndex to a datetime index
-data.index = pd.to_datetime(data.index.map(lambda x: '-'.join(map(str, x))), format='%Y-%B')
+data.index = pd.to_datetime(data.index.map(
+    lambda x: '-'.join(map(str, x))), format='%Y-%B')
 
 # Sort the DataFrame by date
 data = data.sort_index()
@@ -49,7 +50,6 @@ print(first_col_name)
 data = data.resample('MS').asfreq()
 
 data.index
-
 
 
 # Create lag features
@@ -71,8 +71,10 @@ X_test = test.drop(first_col_name, axis=1)
 y_test = test[first_col_name]
 
 # Train the XGBoost model
-model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=1000, learning_rate=0.01, max_depth=5, subsample=0.8, colsample_bytree=0.8, n_jobs=-1, random_state=42)
-model.fit(X_train, y_train, eval_metric='rmse', eval_set=[(X_train, y_train), (X_test, y_test)], early_stopping_rounds=10, verbose=False)
+model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=1000, learning_rate=0.01,
+                         max_depth=5, subsample=0.8, colsample_bytree=0.8, n_jobs=-1, random_state=42)
+model.fit(X_train, y_train, eval_metric='rmse', eval_set=[
+          (X_train, y_train), (X_test, y_test)], early_stopping_rounds=10, verbose=False)
 
 
 # Evaluate the model
@@ -92,6 +94,11 @@ print(data)
 
 # Make predictions
 future = data.iloc[-12:].drop(first_col_name, axis=1)
+
+pickle.dump(future, open('future.pkl', 'wb'))
+model = pickle.load(open('future.pkl', 'rb'))
+
+"""
 future_preds = model.predict(future)
 print('Future Predictions: ', future_preds)
 
@@ -99,10 +106,11 @@ print(y_test)
 
 
 # Plot the results
-plt.plot(test.index, test[first_col_name], label='Actual')
-plt.plot(test.index, test_preds, label='Predicted')
-plt.plot(future.index, future_preds, label='Future Predictions')
+plt.plot(test.index.values, test[first_col_name].values, label='Actual')
+plt.plot(test.index.values, test_preds, label='Predicted')
+plt.plot(future.index.values, future_preds, label='Future Predictions')
 plt.xlabel('Date')
 plt.ylabel(first_col_name)
 plt.legend()
-plt.show()
+plt.savefig('plot.png')
+"""
