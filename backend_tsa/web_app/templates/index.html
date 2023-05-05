@@ -1,28 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Choose Excel Sheet</title>
+    <title>Choose Excel Sheet</title>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 </head>
 <body>
-	<h1>Choose an Excel Sheet</h1>
-	<form action="/" method="POST">
-		<label for="sheet-select">Select Sheet:</label>
-		<select name="sheet-select" id="sheet-select">
-			{% for sheet in sheet_names %}
-			<option value="{{ loop.index }}">{{ sheet }}</option>
-			{% endfor %}
-		</select>
-		<br><br>
-		<input type="submit" value="Submit">
-	</form>
-	{% if plot_file %}
-	<h2>Plot</h2>
-	<img src="{{ plot_file }}" alt="Plot">
-	<br><br>
-	<form action="/" method="GET">
-		<input type="hidden" name="refresh" value="true">
-		<input type="submit" value="Select Another Sheet">
-	</form>
-	{% endif %}
+<h1>Choose an Excel Sheet</h1>
+<form action="/" method="POST">
+    <label for="sheet-select">Select Sheet:</label>
+    <select name="sheet-select" id="sheet-select">
+        {% for sheet in sheet_names %}
+        <option value="{{ loop.index }}">{{ sheet }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+    <input type="submit" value="Submit">
+</form>
+{% if graphJSON %}
+<div>Hello!</div>
+<div id='chart' class='chart'></div>
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script type='text/javascript'>
+  var graphs = {{graphJSON | safe}};
+  Plotly.plot('chart',graphs,{});
+</script>
+{% endif %}
+<br><br>
+{% if plot_file %}
+<form action="/" method="GET">
+    <input type="hidden" name="refresh" value="true">
+    <input type="submit" value="Select Another Sheet">
+</form>
+{% endif %}
 </body>
 </html>
